@@ -1,6 +1,6 @@
-name: GPUClusterEnv
+name: DesalEnv
 version: 1.0.0
-description: A real-world cloud infrastructure environment where agents manage GPU provisioning to handle ML training workloads under strict budget constraints.
+description: Control a municipal desalination plant. Balance water production against fluctuating energy market prices, manage reverse-osmosis membrane degradation, and avoid catastrophic city water shortages.
 endpoints:
   reset: /reset
   step: /step

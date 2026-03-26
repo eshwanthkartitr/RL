@@ -1,86 +1,56 @@
 ---
-title: GPUClusterEnv
-emoji: 🚀
-colorFrom: blue
-colorTo: green
+title: Desalination RL Protocol
+emoji: 🌊
+colorFrom: cyan
+colorTo: blue
 sdk: docker
 pinned: false
 ---
 
-# GPU Cluster Resource Management Environment (GPUClusterEnv)
+# Advanced Municipal Desalination Plant (DesalEnv)
 
-A real-world cloud infrastructure environment where agents manage GPU provisioning to handle ML training workloads under strict budget constraints. 
+An incredibly unique, real-world RL environment that bridges continuous control, resource arbitrage, dynamic system physics, and environmental noise.
 
-Managing compute resources for incoming ML training jobs requires balancing strict budgets against Service Level Agreement (SLA) penalties for long queue times. This environment challenges agents to dynamically scale GPU resources to match fluctuating job arrival rates while maximizing overall reward.
+The agent operates an industrial reverse-osmosis water desalination plant providing drinking water to a municipality. It must balance massive trade-offs under high pressure. This goes **far** above basic control loops, presenting specific non-linear phenomena.
 
-## 🚀 Getting Started
+### Key Mechanics ⚙️
+1. **Weather Shifts:** The environment continuously cycles through weather patterns (`Normal`, `Heatwave`, `Storm`) which violently alter both the Grid Energy Price and the sheer amount of water the city demands. 
+2. **Maintenance Logistics:** Pushing water fouls the RO membranes, dragging up energy costs. You can trigger a `run_cleaning` action, however, crews are not instantly available! Doing so locks a `maintenance_cooldown`. Trying to clean while on cooldown results in idle time and fines.
+3. **Biological Safety Limits:** Overworking a fouled membrane causes micro-tears resulting in salt leakage. The agent tracks `water_salinity`. Processing high water yields while fouled raises PPM levels. Tipping above 500PPM induces strict city health department fines. 
 
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/GPUClusterEnv
-   cd GPUClusterEnv
-   ```
-
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Run the FastAPI server:
-   ```bash
-   uvicorn src.main:app --host 0.0.0.0 --port 7860
-   ```
-
-## 🧠 Environment Design
+## 🧠 Environment Structure
 
 ### Observation Space
 
-The observation space is represented as a structured dictionary containing the current state of the GPU cluster:
+| Feature | Description | Type |
+| :--- | :--- | :--- |
+| `reservoir_level` | Fresh water stored (Megaliters). | `float` |
+| `water_salinity` | PPM of salt in the water. >500 triggers penalties. | `float` |
+| `energy_price` | Fluctuating grid energy price ($/MWh). | `float` |
+| `membrane_fouling` | Hardware Degradation index (0.0=clean, 1.0=blocked). | `float` |
+| `city_demand` | Fluctuating water consumption for the current step. | `float` |
+| `weather_condition` | String literal tracking macro-events (`Heatwave`, etc.) | `string` |
+| `maintenance_cooldown` | Steps until a cleaning crew is available again. | `int` |
+
+### Action Space (Continuous & Discrete Hybrid)
 
 | Feature | Description | Type |
 | :--- | :--- | :--- |
-| `time_step` | Current step in the episode. | `int` |
-| `active_gpus` | Number of currently provisioned GPUs. | `int` |
-| `queue_size` | Number of jobs waiting to be processed. | `int` |
-| `current_budget` | Remaining budget for the episode. | `float` |
-| `incoming_jobs` | Number of new jobs that arrived in the last step. | `int` |
+| `production_rate` | Target water extraction flow rate (0.0 to 50.0). | `float` |
+| `run_cleaning` | Set True to halt production and wash membranes (checks cooldown). | `bool` |
 
-### Action Space
+## Tasks
 
-The agent controls the scaling of the infrastructure by specifying how many GPUs to provision or de-provision:
+Provides 6 heavily distinct curriculums across 3 difficulty tiers to truly evaluate agent robustness:
 
-| Feature | Description | Type | Notes |
-| :--- | :--- | :--- | :--- |
-| `gpus_to_provision` | Number of GPUs to spin up (positive) or spin down (negative). | `int` | Infrastructure scaling |
+**Tier 1: Standard Evaluation**
+* `easy_spring`: Generous reservoir, standard normal weather variables.
 
-### Reward Function
+**Tier 2: Volatile Environmental Shifts**
+* `summer_crisis`: Back-to-back heatwaves and high energy prices. The agent has to aggressively juggle cleanings and salinity.
+* `hurricane_season`: Erratic grids, lower demands, but requires extreme energy arbitrage. 
 
-Instead of a sparse reward, the environment uses a shaped reward function that continuously evaluates the agent's performance based on processing jobs while minimizing costs and SLA penalties:
-
-$$Reward = (JobsProcessed \times 5.0) - (ActiveGPUs \times CostPerGPU) - (QueueSize \times Penalty)$$
-
-*   **CostPerGPU**: $2.50 per step per active GPU.
-*   **Penalty**: $1.00 SLA penalty per step for each waiting job in the queue.
-
-### Terminal Conditions
-
-An episode ends when:
-1. The maximum number of `time_steps` for the task is reached.
-2. The `current_budget` drops to $0 or below.
-
-## 📋 Tasks
-
-The environment provides 3 graded tasks with escalating difficulty:
-
-1. **Easy** (`task_id: "easy"`): Low job arrival rate, generous budget. (Max Steps: 50)
-2. **Medium** (`task_id: "medium"`): Moderate job arrival rate, standard budget. (Max Steps: 100)
-3. **Hard** (`task_id: "hard"`): High, erratic job arrival rate, tight budget. (Max Steps: 200)
-
-## 🤖 Baseline Agent
-
-To evaluate the baseline agent performance:
-```bash
-python src/baseline.py
-```
+**Tier 3: Asymmetrical Shock Scenarios (Testing True Robustness)**
+* `black_swan_drought`: Brutal. Demand stays critically high, reservoir is small. Tests the agent's ability to perfectly time maintenance cooldowns. If they miss one cleaning window, the city drys out.
+* `grid_failure`: The ultimate energy arbitrage test. Standard demand, but grid energy pricing fluctuates by massive magnitudes (`price_volatility=250.0`). Pumping at the wrong time bankrupts the plant.
+* `marathon_endurance`: A 500-step test where micro-degradations compound. Short-term greedy strategies (running fouled, taking salinity hits) will eventually snowball into total failure.

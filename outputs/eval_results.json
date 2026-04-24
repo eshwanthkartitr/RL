@@ -1,0 +1,22 @@
+{
+  "naive": {
+    "avg_reward": 0.0,
+    "safe_ship_rate": 0.5,
+    "unsafe_ship_rate": 0.5,
+    "missed_deadline_rate": 0.0,
+    "avg_false_blocks": 0.0,
+    "avg_true_blocks": 0.0,
+    "avg_invalid_actions": 0.0,
+    "avg_budget_spent": 0.0
+  },
+  "rule": {
+    "avg_reward": 0.818,
+    "safe_ship_rate": 0.85,
+    "unsafe_ship_rate": 0.0,
+    "missed_deadline_rate": 0.15,
+    "avg_false_blocks": 0.0,
+    "avg_true_blocks": 0.5,
+    "avg_invalid_actions": 0.0,
+    "avg_budget_spent": 0.85
+  }
+}

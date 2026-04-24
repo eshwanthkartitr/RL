@@ -1,9 +1,10 @@
-gradio
-torch
-numpy
-gymnasium
+pydantic
 fastapi
 uvicorn
-pydantic
-numpy
-requests
+trl
+pytest
+datasets
+matplotlib
+mlx-lm
+torch
+transformers

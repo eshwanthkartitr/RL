@@ -10,18 +10,39 @@ In this project i have replicated different tools , agents which will give us th
 
 ---
 
-### 🔗 Important Links (Hackathon Requirements)
+### Judge-facing links (put these in your official submission)
 
-* **GitHub (public):** [github.com/eshwanthkartitr/RL](https://github.com/eshwanthkartitr/RL)
-* **Google Colab (Open in Colab for this walkthrough):** [Open `ReleaseOps_final_walkthrough.ipynb` in Colab](https://colab.research.google.com/github/eshwanthkartitr/RL/blob/main/notebooks/ReleaseOps_final_walkthrough.ipynb)  
-  That URL only works if `notebooks/ReleaseOps_final_walkthrough.ipynb` is on the `main` branch—if the folder is missing on GitHub, add it locally, commit, and push.
-* **Hugging Face Space (live environment):** [hiitsesh/New_gpu_space](https://huggingface.co/spaces/hiitsesh/New_gpu_space)
-* **2-Minute demo / pitch video:** `[INSERT YOUR YOUTUBE URL HERE]`
-* Local path to the notebook: [notebooks/ReleaseOps_final_walkthrough.ipynb](notebooks/ReleaseOps_final_walkthrough.ipynb) (compulsory checklist in the first cell).
+| What | URL |
+|------|-----|
+| **Hugging Face Space (required for evaluation)** | [https://huggingface.co/spaces/hiitsesh/New_gpu_space](https://huggingface.co/spaces/hiitsesh/New_gpu_space) — judges pull the env from this URL |
+| **GitHub repo** | [https://github.com/eshwanthkartitr/RL](https://github.com/eshwanthkartitr/RL) |
+| **Re-run training / eval (Colab)** | [Open `notebooks/ReleaseOps_final_walkthrough.ipynb` in Colab](https://colab.research.google.com/github/eshwanthkartitr/RL/blob/main/notebooks/ReleaseOps_final_walkthrough.ipynb) |
+| **Under 2 min pitch / demo (YouTube, public URL — no big video files in the repo)** | **TODO — replace with your public YouTube link** |
+| **Optional: mini-blog on Hugging Face (Model card / Space README / post)** | **TODO — or confirm video alone satisfies the “blog OR video” rule** |
+| **What judges look for (Google Doc)** | [Organizer rubric / judge notes](https://docs.google.com/document/d/1Odznuzwtb1ecDOm2t6ToZd4MuMXXfO6vWUGcxbC6mFs/edit?tab=t.0#bookmark=kix.2dz0x0nie3me) |
 
 ---
 
-A little bit abt env 
+## Submission checklist (organizer “NOTE 1” — all should be satisfied)
+
+| # | Requirement | Where in this project |
+|---|-------------|------------------------|
+| 1 | **OpenEnv (latest).** Build on the framework, don’t reinvent. | [openenv.yaml](openenv.yaml) + `openenv-core` in [requirements.txt](requirements.txt) (`openenv-core>=0.1.0`; run `pip install -U openenv-core` before shipping to match the **latest** PyPI release). Env implementation: [releaseops_arena/tool_env.py](releaseops_arena/tool_env.py). |
+| 2 | **Working training path + RL library.** TRL (GRPO) is used; notebook for judges. | [training/train_grpo.py](training/train_grpo.py) (TRL + `ReleaseOpsGRPOEnv`); [notebooks/ReleaseOps_final_walkthrough.ipynb](notebooks/ReleaseOps_final_walkthrough.ipynb) (Colab-friendly walkthrough). |
+| 3 | **Evidence of a real run** (loss / reward, etc.). | Plots in **Training evidence** below; images under [images/](images/); training logs/metrics are produced by the scripts (see `outputs/` when you run locally/Space). |
+| 4 | **Short writeup *or* under-2 min video (public URL).** Not a large file in the Hub. | This README + **add your YouTube (and/or HF post) link** in the table above. No video binaries committed here. |
+| 5 | **Environment on Hugging Face Space** (discoverable, runnable). | [hiitsesh/New_gpu_space](https://huggingface.co/spaces/hiitsesh/New_gpu_space) — **this exact URL** should be the one your team lead submits. |
+| 6 | **README** motivates the problem, explains the env, shows results, links all materials. | You are reading it. Improve any **TODO** rows before the deadline. |
+
+**NOTE 2 (process):** One submission per team; **only the team lead** should submit; **no commits after the deadline** count — freeze and tag if needed. **Deadline: 26 April, 5 PM IST** (confirm year/timezone on the official announcement).
+
+---
+
+### How the environment works (short)
+
+[simple](./images/Ep&reward.png)
+
+ReleaseOps Arena is a **stateful, tool-using** [OpenEnv](https://pypi.org/project/openenv-core/)-style environment: a supervisor LLM gets **JSON observations** (release phase, proposals, CI refs, safety rules, budgets) and can call a fixed toolset (`inspect_pr_diff`, `inspect_ci_run`, `ask_worker`, `approve` / `block` / `hold_release`, …). Episodes return **rewards** (shaping + terminal) from [releaseops_arena/rewards.py](releaseops_arena/rewards.py) and the **same** loop backs GRPO in `train_grpo.py`. The **HF Space** exposes the **FastAPI** server so judges can hit `/reset`, `/step`, and `/docs` on the public URL without cloning.
 
 
 
@@ -76,3 +97,9 @@ BASE = "http://127.0.0.1:7860"
 ```
 
 If the registry path 404s, use HF’s UI for the authoritative name (namespace and slug differ from the `*.hf.space` hostname in subtle ways).
+
+
+
+Ui for release (./demo/releaseops_episode_flow.html)
+![Model Training Proofs](./images/Training_proof_logs.png)
+![Model Training Proofs](./images/Training_proof.png)

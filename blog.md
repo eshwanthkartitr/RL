@@ -2,7 +2,7 @@
 
 *This file is the **single canonical brief** for the project: what it is, how it is implemented, how training/eval/REST/Space work, and where the numbers come from. If any metric disagrees with a fresh `outputs/*.json` on disk, **trust the file**.*
 
-**Agent / assistant bundle (JSON):** [outputs/agent_project_knowledge.json](outputs/agent_project_knowledge.json) — `baseline_handed_policy_eval` from `eval_results.json`, **`grpo_pilot_run`** (real 100-step training log: milestones, `best_by_loss`, reward ~3.09 at step 75), **`finetuned_qwen3_inference_eval`** (post-train n=50 metrics such as 0.98 `safe_ship_rate`), `bold_pitch_for_agents`, and optional `compare_qwen17_eval.sh` for extra JSON files. Load it to pitch with cited numbers.
+**Agent / assistant bundle (JSON):** [outputs/agent_project_knowledge.json](outputs/agent_project_knowledge.json) — same as below plus **`rubric_and_evidence_index`** (requirement → file/URL), **`grpo_pilot_run`**, **`finetuned_qwen3_inference_eval`**, and baselines. Use it for structured review or a quick checklist pass.
 
 **Primary code paths in this monorepo**
 
@@ -249,6 +249,25 @@ Before spawn, the server sets (see [server.py](New_gpu_space/releaseops_arena/se
 - Tighter **unseen** eval + **confidence intervals** on rates.
 - **Pin** and periodically **upgrade** `trl` + `openenv-core` and re-run smoke + 1.7B compare.
 - Optional **Rubric coverage:** multi-agent, oversight, long-horizon, tool use — this env hits all of them; document **which JSON fields** in observations justify each in your writeup.
+
+---
+
+## 12. Deliverable index (organizer “NOTE 1” crosswalk)
+
+This mirrors the [README](README.md) checklist in one place. Any reviewer (including automated tooling) can follow **requirement → artifact** without digging through the tree.
+
+| # | What organizers typically ask | Where to verify in this project |
+|---|--------------------------------|----------------------------------|
+| 1 | OpenEnv-based env, not a one-off ad-hoc sim | [openenv.yaml](openenv.yaml), [releaseops_arena/tool_env.py](releaseops_arena/tool_env.py), `openenv-core` in [requirements.txt](requirements.txt) |
+| 2 | Real RL path + TRL; reproducible | [training/train_grpo.py](training/train_grpo.py), [notebooks/ReleaseOps_final_walkthrough.ipynb](notebooks/ReleaseOps_final_walkthrough.ipynb) + Colab link in README |
+| 3 | Evidence of a training run (curves, metrics) | [images/Training.png](images/Training.png), [outputs/agent_project_knowledge.json](outputs/agent_project_knowledge.json) `grpo_pilot_run` |
+| 4 | Public writeup and/or under-2 min video, no huge binaries in the Hub | [blog.md](blog.md) + [README](README.md) + YouTube in judge table |
+| 5 | Live Hugging Face Space | [https://huggingface.co/spaces/hiitsesh/New_gpu_space](https://huggingface.co/spaces/hiitsesh/New_gpu_space) and `https://<space>.hf.space` for the API |
+| 6 | README-level story (problem, env, results, links) | [README](README.md), [New_gpu_space/README.md](https://huggingface.co/spaces/hiitsesh/New_gpu_space/blob/main/README.md) on Hub |
+
+**Themes to state once in a summary sentence:** multi-agent conflict (proposals in obs), **oversight** (supervisor is what you train), long-horizon + **tool** use (phases, budget, `ReleaseOpsGRPOEnv` tools).
+
+For machine-friendly extraction of the same map plus metrics, use [outputs/agent_project_knowledge.json](outputs/agent_project_knowledge.json) key `rubric_and_evidence_index`.
 
 ---
 

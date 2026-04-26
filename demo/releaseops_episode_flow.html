@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ReleaseOps Arena — Overview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Skin-tone neutrals & Perplexity-like Teal Accent */
+    :root {
+      --bg: #faf5ef;
+      --bg-deep: #f0e4d8;
+      --surface: #f7efe8;
+      --surface-2: #ffffff;
+      --border: #d4b8a5;
+      --border-focus: #b5957f;
+      --text: #3a322c;
+      --muted: #6b5d54;
+      --ink: #1c1917;
+      
+      --pplx-teal: #0d9488;
+      --pplx-teal-soft: #ccfbf1;
+      --pplx-teal-glow: rgba(13, 148, 136, 0.25);
+      
+      --danger: #b4532a;
+      --danger-bg: #fde8dd;
+      --ok: #1d6b4a;
+      --ok-bg: #d8f0e2;
+      --warn: #a16207;
+      --warn-bg: #fef3c7;
+      --run: #2563eb;
+      --run-bg: #dbeafe;
+      
+      --shadow-sm: 0 1px 3px rgba(58, 50, 44, 0.08);
+      --shadow-md: 0 4px 12px rgba(58, 50, 44, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      font-optical-sizing: auto;
+      letter-spacing: -0.01em;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 80% 50% at 50% -20%, #fff9f3, transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 64rem;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    header { text-align: center; }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.04em;
+    }
+
+    header .sub {
+      margin: 0 auto;
+      color: var(--muted);
+      max-width: 42rem;
+      font-size: 1rem;
+    }
+
+    .scenario {
+      margin: 2rem auto 0;
+      max-width: 48rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      text-align: left;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .scenario strong { color: var(--ink); }
+    .scenario .label { 
+      font-size: 0.75rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.1em; 
+      color: var(--pplx-teal); 
+      font-weight: 700; 
+      margin-bottom: 0.5rem; 
+    }
+
+    h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 700;
+      margin: 0 0 1rem;
+    }
+
+    /* --- ANIMATION BLOCK --- */
+    .env-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .controls-left {
+      display: flex;
+      gap: 1rem;
+      flex: 1;
+      min-width: 300px;
+    }
+
+    select, button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    select { flex: 1; font-weight: 500; }
+    select:hover, select:focus { border-color: var(--pplx-teal); }
+
+    button.play-btn {
+      background: var(--pplx-teal);
+      color: #fff;
+      border-color: var(--pplx-teal);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+    
+    button.play-btn:hover {
+      background: #0f766e;
+      box-shadow: 0 0 12px var(--pplx-teal-glow);
+    }
+    button.play-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .scenario-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      background: rgba(255,255,255,0.5);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .arena { display: flex; flex-direction: column; gap: 2.5rem; }
+
+    .track-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .reward-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      opacity: 0; 
+      transform: translateY(5px);
+      transition: all 0.3s ease;
+      color: var(--muted);
+    }
+    .reward-badge.show { opacity: 1; transform: translateY(0); }
+    .reward-pos { color: var(--ok); border-color: var(--ok); background: var(--ok-bg); }
+    .reward-neg { color: var(--danger); border-color: var(--danger); background: var(--danger-bg); }
+
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* RENAMED FROM .node TO .stage-node TO FIX MERMAID BUG */
+    .stage-node {
+      width: 230px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      position: relative;
+      z-index: 2;
+      opacity: 0.5;
+      transform: scale(0.96);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stage-node.active {
+      opacity: 1;
+      transform: scale(1.02);
+      border-color: var(--pplx-teal);
+      box-shadow: 0 0 15px var(--pplx-teal-glow);
+    }
+    .stage-node.completed {
+      opacity: 1;
+      transform: scale(1);
+      border-color: var(--border-focus);
+    }
+
+    .stage-node--agent { background: linear-gradient(90deg, #f0fdfa, #fff); }
+    .stage-node--bad { background: #fff7ed; }
+
+    .n-head { display: flex; justify-content: space-between; align-items: flex-start; }
+    .n-title { font-size: 0.85rem; font-weight: 700; color: var(--ink); }
+    .n-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.35; min-height: 32px; }
+
+    .connector {
+      flex: 1; height: 2px; background: var(--border);
+      position: relative; z-index: 1; margin: 0 12px;
+      transition: background 0.4s, box-shadow 0.4s;
+    }
+    .connector.active {
+      background: var(--pplx-teal);
+      box-shadow: 0 0 6px var(--pplx-teal);
+    }
+
+    .pill {
+      font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.05em; padding: 0.2rem 0.5rem; border-radius: 4px;
+      display: none;
+    }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(13, 148, 136, 0.15);
+      border-top-color: var(--pplx-teal);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .stage-node.active .spinner { display: block; }
+    .stage-node.completed .spinner { display: none; }
+    .stage-node.completed .pill { display: inline-block; }
+
+    .pill.run { background: var(--run-bg); color: var(--run); }
+    .pill.pass { background: var(--ok-bg); color: var(--ok); }
+    .pill.fail { background: var(--danger-bg); color: var(--danger); }
+    .pill.agent { background: var(--pplx-teal-soft); color: var(--pplx-teal); border: 1px solid rgba(13, 148, 136, 0.2); }
+
+    /* --- FLOWCHART BLOCK --- */
+    .card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      overflow: auto;
+      box-shadow: var(--shadow-sm);
+    }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem;
+      font-size: 0.8rem; color: var(--muted); margin-top: 1rem;
+    }
+    .legend b { color: var(--ink); }
+    .legend i {
+      display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 2px; margin-right: 0.35rem;
+      background: var(--pplx-teal); vertical-align: middle;
+    }
+    .l-dotted { background: repeating-linear-gradient(90deg, #0d9488, #0d9488 2px, transparent 2px, transparent 4px); }
+
+    /* --- EXPLANATION BLOCK --- */
+    .explain { display: grid; gap: 1.5rem; }
+    @media (min-width: 48rem) { .explain { grid-template-columns: 1fr 1fr; } }
+    .explain blockquote {
+      margin: 0; padding: 1.2rem 1.5rem;
+      background: var(--surface-2);
+      border-left: 4px solid var(--pplx-teal);
+      border-radius: 0 10px 10px 0;
+      font-size: 0.95rem; color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+    .explain blockquote strong { color: var(--pplx-teal); }
+    ul.talking { margin: 0; padding-left: 1.2rem; color: var(--text); font-size: 0.95rem; }
+    ul.talking li { margin-bottom: 0.5rem; }
+
+    footer { text-align: center; font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+    .icon-play { width: 14px; height: 14px; fill: currentColor; }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <header>
+      <h1>ReleaseOps Arena</h1>
+      <p class="sub">Oversight for CI/CD: training a “release safety” agent via RL, JSON observations, tool actions, and terminal rewards.</p>
+
+      <div class="scenario">
+        <div class="label">Scenario State (What the model sees)</div>
+        <p style="margin:0;">
+          <strong>Structured JSON:</strong> release <strong>phase</strong> (e.g. proposal → review → cutover),
+          <strong>proposals</strong> to approve or block, <strong>CI run ids</strong> and job status, <strong>policy rules</strong>, and
+          <strong>budgets</strong>. The agent calls tools (<code>inspect_pr_diff</code>, <code>ask_worker</code>) before deciding to <code>approve</code>, <code>block</code>, or <code>hold</code>.
+        </p>
+      </div>
+    </header>
+
+    <section>
+      <h2>Environment Trajectories</h2>
+      <div class="env-block">
+        <div class="controls">
+          <div class="controls-left">
+            <select id="scenario-select">
+              <option value="disabled_payment_test">Trajectory 1: Disabled Payment Test (pr_9079)</option>
+              <option value="p1_checkout_ignored">Trajectory 2: P1 Checkout Ignored (ticket_9079)</option>
+            </select>
+          </div>
+          <button id="playBtn" class="play-btn">
+            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            Play Episode
+          </button>
+        </div>
+
+        <div class="scenario-desc" id="scenario-desc">
+          Select a scenario to visualize the RL agent's behavior.
+        </div>
+        
+        <div class="arena">
+          <div class="track">
+            <div class="track-label">
+              <span>Before RL (Baseline Script)</span>
+              <span class="reward-badge" id="reward-before"></span>
+            </div>
+            <div class="pipeline" id="pipe-before">
+              <div class="stage-node step-1">
+                <div class="n-head"><span class="n-title">CI Pipeline</span><div class="spinner"></div><span class="pill run" id="b-ci-pill">Passed</span></div>
+                <div class="n-sub" id="b-ci-text">Triggering release...</div>
+              </div>
+              <div class="connector conn-1"></div>
+              
+              <div class="stage-node step-2 stage-node--bad">
+                <div class="n-head"><span class="n-title">Agent Action</span><div class="spinner"></div><span class="pill fail" id="b-agent-pill">Blind Approve</span></div>
+                <div class="n-sub" id="b-agent-text">Awaiting input...</div>
+              </div>
+              <div class="connector conn-2"></div>
+              
+              <div class="stage-node step-3">
+                <div class="n-head"><span class="n-title">Deployment Gate</span><div class="spinner"></div><span class="pill fail" id="b-out-pill">Unsafe Ship</span></div>
+                <div class="n-sub" id="b-out-text">Awaiting gate...</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="track">
+            <div class="track-label">
+              <span style="color: var(--pplx-teal);">After RL (Trained Agent)</span>
+              <span class="reward-badge" id="reward-after"></span>
+            </div>
+            <div class="pipeline" id="pipe-after">
+              <div class="stage-node step-1">
+                <div class="n-head"><span class="n-title">CI Pipeline</span><div class="spinner"></div><span class="pill run" id="a-ci-pill">Passed</span></div>
+                <div class="n-sub" id="a-ci-text">Triggering release...</div>
+              </div>
+              <div class="connector conn-1"></div>
+              
+              <div class="stage-node step-2 stage-node--agent">
+                <div class="n-head"><span class="n-title">Agent Action</span><div class="spinner"></div><span class="pill agent" id="a-agent-pill">Inspect & Block</span></div>
+                <div class="n-sub" id="a-agent-text">Awaiting input...</div>
+              </div>
+              <div class="connector conn-2"></div>
+              
+              <div class="stage-node step-3">
+                <div class="n-head"><span class="n-title">Deployment Gate</span><div class="spinner"></div><span class="pill pass" id="a-out-pill">Safe Halted</span></div>
+                <div class="n-sub" id="a-out-text">Awaiting gate...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Episode &amp; Reward Architecture</h2>
+      <div class="card">
+        <pre class="mermaid">
+flowchart TD
+    A["Start Node<br/>Scenario &amp; Budgets"] --> B["Observation JSON"]
+    B --> C{"Agent Action"}
+
+    C --> C1["Inspect Evidence"]
+    C --> C2["Decide (Approve/Block)"]
+    C --> C3["Hold Release"]
+
+    C1 --> D1["State update: Consume budget"]
+    C2 --> D2["State update: Proposal resolved"]
+    C3 --> D3["State update: Advance time"]
+
+    D1 -.-> S1[Shaping +0.2 violation found]
+    D2 -.-> S3[Shaping -0.15 false block]
+
+    D1 --> E{"Terminal?"}
+    D2 --> E
+    D3 --> E
+
+    E -- No --> B
+    E -- Yes --> T{"Outcome"}
+
+    T --> T1[Safe ship] --> R1[Reward +1.0]
+    T --> T2[Unsafe ship] --> R2[Reward -1.0]
+    T --> T3[Missed deadline] --> R3[Reward -0.6]
+        </pre>
+      </div>
+      <div class="legend">
+        <span><b>Main Transition</b> <i style="width:0.55rem;height:0.55rem"></i> step to step</span>
+        <span><b>Shaping Reward</b> <i class="l-dotted" style="width:0.55rem;height:0.55rem"></i> applied instantly</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="explain">
+        <ul class="talking">
+          <li><strong>Before RL</strong>: We run CI/CD with no one in the middle. The untrained model acts like a naive script, pushing failures to production.</li>
+          <li><strong>After RL</strong>: The <strong>oversight agent</strong> inspects diffs and logs. It acts as a required logic gate, securing the release path.</li>
+        </ul>
+        <blockquote>
+          <strong>RL/GRPO Architecture:</strong> Shaping rewards train the agent to gather evidence step-by-step. The terminal reward dictates the final success (safe ship vs. unsafe ship).
+        </blockquote>
+      </div>
+    </section>
+
+    <footer>
+      Interactive Pipeline Concept • ReleaseOps Arena
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js" crossorigin="anonymous"></script>
+  <script>
+    // --- Initialize Mermaid ---
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: "loose",
+      flowchart: { curve: "basis", padding: 16, nodeSpacing: 50, rankSpacing: 60 },
+      theme: "base",
+      themeVariables: {
+        background: "#ffffff",
+        primaryColor: "#f7efe8",
+        primaryTextColor: "#3a322c",
+        primaryBorderColor: "#d4b8a5",
+        lineColor: "#9c8578",
+        textColor: "#3a322c",
+        mainBkg: "#f7efe8",
+        nodeBorder: "#d4b8a5",
+        clusterBkg: "#faf5ef"
+      }
+    });
+
+    // --- Data Definitions ---
+    const scenarios = {
+      disabled_payment_test: {
+        desc: "Rule: payments_tests_must_pass. CI is green, but the PR disabled a critical payment test.",
+        ciText: "CI Run complete. Suite shows green.",
+        before: {
+          agentPillClass: "fail", agentPillText: "Approve",
+          agentText: "Trusts green CI. Approves p851 without inspecting pr_9079.",
+          outPillClass: "fail", outPillText: "Unsafe Ship",
+          outText: "Broken code reaches production.",
+          reward: "-1.0", rewardClass: "reward-neg"
+        },
+        after: {
+          agentPillClass: "agent", agentPillText: "Inspect & Block",
+          agentText: "Calls inspect_pr_diff. Finds disabled test. Blocks ship.",
+          outPillClass: "pass", outPillText: "Safe",
+          outText: "Pipeline halted safely.",
+          reward: "+1.0", rewardClass: "reward-pos"
+        }
+      },
+      p1_checkout_ignored: {
+        desc: "Rule: no_p1_open. QA approved the release, but ticket_9079 (P1 Checkout Bug) is still OPEN.",
+        ciText: "QA signals GO for candidate p614.",
+        before: {
+          agentPillClass: "fail", agentPillText: "Approve",
+          agentText: "Approves ship ignoring the open P1 ticket.",
+          outPillClass: "fail", outPillText: "Unsafe Ship",
+          outText: "Critical bug shipped to live.",
+          reward: "-1.0", rewardClass: "reward-neg"
+        },
+        after: {
+          agentPillClass: "agent", agentPillText: "Hold / Block",
+          agentText: "Reads ticket_9079. SRE enforces policy. Holds release.",
+          outPillClass: "pass", outPillText: "Safe",
+          outText: "No ship until policy met.",
+          reward: "+1.0", rewardClass: "reward-pos"
+        }
+      }
+    };
+
+    // --- DOM Elements ---
+    const select = document.getElementById('scenario-select');
+    const playBtn = document.getElementById('playBtn');
+    const descEl = document.getElementById('scenario-desc');
+    const bReward = document.getElementById('reward-before');
+    const aReward = document.getElementById('reward-after');
+
+    const setNode = (id, text, className) => {
+      const el = document.getElementById(id);
+      if (text) el.innerText = text;
+      if (className) el.className = `pill ${className}`;
+    };
+
+    // --- Animation Engine ---
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const resetUI = (data) => {
+      document.querySelectorAll('.stage-node, .connector').forEach(el => {
+        el.classList.remove('active', 'completed');
+      });
+      bReward.className = 'reward-badge';
+      aReward.className = 'reward-badge';
+      
+      descEl.innerHTML = `<strong>Context:</strong> ${data.desc}`;
+      setNode('b-ci-text', data.ciText);
+      setNode('a-ci-text', data.ciText);
+      
+      setNode('b-agent-text', "Awaiting execution...");
+      setNode('a-agent-text', "Awaiting execution...");
+      
+      setNode('b-out-text', "Awaiting gate...");
+      setNode('a-out-text', "Awaiting gate...");
+    };
+
+    const playTrack = async (prefix, trackData) => {
+      const qs = (sel) => document.querySelector(`#pipe-${prefix} ${sel}`);
+      
+      // Step 1: CI
+      qs('.step-1').classList.add('active');
+      await sleep(800);
+      qs('.step-1').classList.replace('active', 'completed');
+      qs('.conn-1').classList.add('active');
+      
+      // Step 2: Agent
+      await sleep(200);
+      qs('.step-2').classList.add('active');
+      
+      if(prefix === 'after') {
+         setNode(`${prefix === 'before' ? 'b' : 'a'}-agent-text`, "Loading tools (inspect)...");
+         await sleep(1000); 
+      } else {
+         await sleep(500); 
+      }
+      
+      setNode(`${prefix === 'before' ? 'b' : 'a'}-agent-text`, trackData.agentText);
+      setNode(`${prefix === 'before' ? 'b' : 'a'}-agent-pill`, trackData.agentPillText, trackData.agentPillClass);
+      qs('.step-2').classList.replace('active', 'completed');
+      qs('.conn-2').classList.add('active');
+
+      // Step 3: Outcome Gate
+      await sleep(200);
+      qs('.step-3').classList.add('active');
+      await sleep(600);
+      
+      setNode(`${prefix === 'before' ? 'b' : 'a'}-out-text`, trackData.outText);
+      setNode(`${prefix === 'before' ? 'b' : 'a'}-out-pill`, trackData.outPillText, trackData.outPillClass);
+      qs('.step-3').classList.replace('active', 'completed');
+
+      // Terminal Reward
+      const rewardBadge = prefix === 'before' ? bReward : aReward;
+      rewardBadge.innerText = `Reward: ${trackData.reward}`;
+      rewardBadge.classList.add('show', trackData.rewardClass);
+    };
+
+    // --- Events ---
+    select.addEventListener('change', () => resetUI(scenarios[select.value]));
+
+    playBtn.addEventListener('click', async () => {
+      const data = scenarios[select.value];
+      playBtn.disabled = true;
+      playBtn.innerHTML = "Simulating Episode...";
+      
+      resetUI(data);
+      
+      await Promise.all([
+        playTrack('before', data.before),
+        playTrack('after', data.after)
+      ]);
+
+      playBtn.disabled = false;
+      playBtn.innerHTML = `<svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Replay Episode`;
+    });
+
+    // Init
+    resetUI(scenarios[select.value]);
+  </script>
+</body>
+</html>

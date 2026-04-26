@@ -3,6 +3,7 @@ import argparse
 import re
 import sys
 import time
+from typing import Optional
 from importlib.util import find_spec
 from pathlib import Path
 
@@ -680,16 +681,23 @@ def chat_prompt(tokenizer, messages, tokenize=False):
 
 
 class TorchGenerator:
-    def __init__(self, model_name):
+    def __init__(self, model_name, subfolder: Optional[str] = None):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.torch = torch
-        self.device = "mps" if torch.backends.mps.is_available() else "cpu"
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        if torch.cuda.is_available():
+            self.device = "cuda"
+        elif torch.backends.mps.is_available():
+            self.device = "mps"
+        else:
+            self.device = "cpu"
+        sub_kw = {"subfolder": subfolder} if subfolder else {}
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, **sub_kw)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             dtype=torch.float16,
+            **sub_kw,
         ).to(self.device)
 
     def generate(self, messages, max_new_tokens):
@@ -745,7 +753,11 @@ def load_generator(args):
     )
 
     start = time.perf_counter()
-    generator = MlxGenerator(model_name) if backend == "mlx" else TorchGenerator(model_name)
+    if backend == "mlx":
+        generator = MlxGenerator(model_name)
+    else:
+        sub = getattr(args, "torch_subfolder", None) or None
+        generator = TorchGenerator(model_name, subfolder=sub)
     load_seconds = time.perf_counter() - start
     print(f"Loaded in {load_seconds:.1f}s", flush=True)
     return backend, generator, load_seconds
@@ -879,6 +891,12 @@ def parse_args():
         help="auto uses a local MLX model when present, otherwise torch.",
     )
     parser.add_argument("--torch-model", default=TORCH_MODEL_NAME)
+    parser.add_argument(
+        "--torch-subfolder",
+        default="",
+        help="Optional subfolder in a Hub repo (e.g. best_by_loss). Use with "
+        "--torch-model hiitsesh/your-model-repo to avoid a separate 7GB clone under the project.",
+    )
     parser.add_argument("--mlx-model", default=MLX_MODEL_NAME)
     parser.add_argument("--limit", type=int, default=5)
     parser.add_argument("--max-steps", type=int, default=MAX_STEPS)
@@ -893,7 +911,9 @@ def parse_args():
         default="outputs/llm_baseline_metrics.json",
         help="Path to save baseline metrics JSON.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    args.torch_subfolder = (args.torch_subfolder or "").strip() or None
+    return args
 
 
 if __name__ == "__main__":

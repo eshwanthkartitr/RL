@@ -2,11 +2,14 @@ pydantic
 fastapi
 uvicorn
 requests
-openenv-core[core]>=0.2.1
-trl @ git+https://github.com/huggingface/trl.git
+# 0.1.0 on PyPI has no `[core]` extra; install plain package. For newer OpenEnv, pin when published.
+openenv-core>=0.1.0
+# PyPI `trl` avoids git clone during `pip install` (use mainline for latest: pip install "git+https://github.com/huggingface/trl.git")
+trl>=0.22.0
 pytest
 datasets
 matplotlib
 mlx-lm
 torch
 transformers
+gradio>=4.44.0
